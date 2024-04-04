@@ -1,0 +1,30 @@
+name: Deploy test
+  
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - 'release/**'
+  workflow_dispatch:
+
+jobs:
+  list-versions:
+    uses: ./.github/workflows/_list-versions.yml
+   
+  deploy-test:
+    needs: list-versions
+    if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        version: ${{ fromJson(needs.list-versions.outputs.versions) }}
+    
+    uses: ./.github/workflows/_docker-build.yml
+    with:
+      environment: test
+      version: ${{ matrix.version }}
+      push: true

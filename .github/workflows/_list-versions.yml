@@ -1,0 +1,41 @@
+name: Get updated version versions
+
+on:
+  workflow_call:
+    outputs:
+      versions:
+        description: "JSON array of updated versions"
+        value: ${{ jobs.list-versions.outputs.matrix }}
+
+jobs:
+  list-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-versions.outputs.versions }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      -
+        name: Get updated versions
+        id: set-versions
+        run: |
+          echo "=============== list modified files ==============="
+          git diff --name-only HEAD^ HEAD
+          
+          echo "========== check paths of modified files =========="
+          modified_dirs=($(git diff --name-only HEAD^ HEAD | cut -d "/" -f 1 | sort | uniq))
+          versions=()
+          for dir in "${modified_dirs[@]}"; do
+            if [[ "$dir" =~ ^0|[1-9]\d*.0|[1-9]\d*.0|[1-9]\d* ]]; then
+              [ $dir = 3.6.15 ] && continue # 3.6.15 is not supported.
+              versions+=("$dir")
+            fi
+          done
+
+          versions+=("3.11.27")
+          versions+=("3.12.10")
+          
+          echo "versions=$(jq -c -n '$ARGS.positional' --args "${versions[@]}")" >> $GITHUB_OUTPUT

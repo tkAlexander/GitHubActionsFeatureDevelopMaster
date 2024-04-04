@@ -1,0 +1,31 @@
+name: Deploy development
+  
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - 'develop'
+      - 'feature/**'
+  workflow_dispatch:
+
+jobs:
+  list-versions:
+    uses: ./.github/workflows/_list-versions.yml
+   
+  deploy-development:
+    needs: list-versions
+    if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        version: ${{ fromJson(needs.list-versions.outputs.versions) }}
+    
+    uses: ./.github/workflows/_docker-build.yml
+    with:
+      environment: development
+      version: ${{ matrix.version }}
+      push: true
