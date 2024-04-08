@@ -34,8 +34,5 @@ jobs:
               versions+=("$dir")
             fi
           done
-
-          versions+=("3.11.27")
-          versions+=("3.12.10")
           
           echo "versions=$(jq -c -n '$ARGS.positional' --args "${versions[@]}")" >> $GITHUB_OUTPUT
