@@ -18,40 +18,40 @@ jobs:
   build:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    env:
-      REGISTRY: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
-      IMAGE_NAME: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
     steps:
       -
         name: Checkout
         uses: actions/checkout@v4
       - name: Docker tags
         id: tags
+        env:
+          BUILD: ${{ github.run_number }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          GIT_BRANCH: ${{ github.ref }}
+          IMAGE_NAME: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
+          VERSION: ${{ inputs.version }}
         run: |
-          environment="${{ inputs.environment }}"
-          git_branch=${{ github.ref }}
-          
           tags=()
           
-          case $environment in
+          case $ENVIRONMENT in
             development)
-              tags+=("${IMAGE_NAME}:${{ inputs.version }}_b${{ github.run_number }}")
-              case $git_branch in
+              tags+=("${IMAGE_NAME}:${VERSION}_b${BUILD}")
+              case $GIT_BRANCH in
                 refs/heads/develop)
-                  tags+=("${IMAGE_NAME}:${{ inputs.version }}_dev")
+                  tags+=("${IMAGE_NAME}:${VERSION}_dev")
                   ;;
                 refs/heads/feature/*)
-                  tags+=("${IMAGE_NAME}:feature_branch_${{ inputs.version }}_dev")
+                  tags+=("${IMAGE_NAME}:feature_branch_${VERSION}_dev")
                   ;;          
               esac
               ;;
             testing)
-              tags+=("${IMAGE_NAME}:${{ inputs.version }}_b${{ github.run_number }}")
-              tags+=("${IMAGE_NAME}:${{ inputs.version }}_test")
+              tags+=("${IMAGE_NAME}:${VERSION}_b${BUILD}")
+              tags+=("${IMAGE_NAME}:${VERSION}_test")
               ;;
             production)
-              tags+=("${IMAGE_NAME}:${{ inputs.version }}_b${{ github.run_number }}")
-              tags+=("${IMAGE_NAME}:${{ inputs.version }}_stable")
+              tags+=("${IMAGE_NAME}:${VERSION}_b${BUILD}")
+              tags+=("${IMAGE_NAME}:${VERSION}_stable")
               ;;
           esac
           
@@ -72,7 +72,7 @@ jobs:
         name: Login to ECR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
       -
         name: Build and load
         uses: docker/build-push-action@v5
@@ -87,19 +87,24 @@ jobs:
           tags: ${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}
       -
         name: Test
+        env:
+          REPOSITORY: ${{ vars.AWS_REPOSITORY }}
+          VERSION: ${{ inputs.version }}
         run: |
-          docker run --rm --name rabbitmq-${{ inputs.version }} \
+          docker run --rm --name rabbitmq-${VERSION} \
             --health-cmd='rabbitmq-diagnostics -q ping' \
             --health-interval=5s \
             --health-timeout=5s \
             --health-retries=10 \
-            -d ${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}
+            -d ${REPOSITORY}:${VERSION}
           docker ps
-          docker stop rabbitmq-${{ inputs.version }}
+          docker stop rabbitmq-${VERSION}
       -
         name: Set platform
+        env:
+          VERSION: ${{ inputs.version }}        
         run: |
-          cd ./${{ inputs.version }}
+          cd ./${VERSION}
           echo "PLATFORM=$(cat .platform)" >> "$GITHUB_ENV"     
       -
         name: Build and push
