@@ -35,7 +35,7 @@ jobs:
           
           case $environment in
             development)
-              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_number }}")
               case $git_branch in
                 refs/heads/develop)
                   tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_dev")
@@ -46,11 +46,11 @@ jobs:
               esac
               ;;
             test)
-              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_number }}")
               tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_test")
               ;;
             production)
-              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_number }}")
               tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_stable")
               ;;
           esac

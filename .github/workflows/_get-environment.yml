@@ -1,0 +1,42 @@
+name: Get environment based on current brunch
+
+on:
+  workflow_call:
+    outputs:
+      environment:
+        description: "JSON array of updated versions"
+        value: ${{ jobs.get-environment.outputs.environment }}
+
+jobs:
+  get-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.get-environment.outputs.environment }}
+    steps:
+#      -
+#        name: Checkout
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 2
+      -
+        name: Get environment
+        id: set-environment
+        run: |
+          git_branch=${{ github.ref }}
+          
+          case $git_branch in
+            refs/heads/master)
+              environment="production"
+              ;;
+            refs/heads/release/**)
+              environment="testing"
+              ;;
+            refs/heads/develop)
+              environment="development"
+              ;;
+            refs/heads/feature/*)
+              environment="development"
+              ;;
+          esac
+          
+          echo "environment=${environment}" >> $GITHUB_OUTPUT
