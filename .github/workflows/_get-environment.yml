@@ -21,10 +21,10 @@ jobs:
       -
         name: Get environment
         id: get-environment
+        env:
+          GIT_BRANCH: ${{ github.ref }}
         run: |
-          git_branch=${{ github.ref }}
-          
-          case $git_branch in
+          case $GIT_BRANCH in
             refs/heads/master)
               environment="production"
               ;;
@@ -43,5 +43,6 @@ jobs:
               ;;
           esac
           
-          echo "environment=${environment}"
+          echo "environment: ${environment}"
+          
           echo "environment=${environment}" >> $GITHUB_OUTPUT
