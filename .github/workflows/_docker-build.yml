@@ -18,6 +18,8 @@ jobs:
   build:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
     steps:
       -
         name: Checkout
@@ -28,7 +30,7 @@ jobs:
           BUILD: ${{ github.run_number }}
           ENVIRONMENT: ${{ inputs.environment }}
           GIT_BRANCH: ${{ github.ref }}
-          IMAGE_NAME: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
+          IMAGE_NAME: "${{ env.REGISTRY }}/${{ vars.AWS_REPOSITORY }}"
           VERSION: ${{ inputs.version }}
         run: |
           tags=()
@@ -72,7 +74,7 @@ jobs:
         name: Login to ECR
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+          registry: ${{ env.REGISTRY }}
       -
         name: Build and load
         uses: docker/build-push-action@v5
