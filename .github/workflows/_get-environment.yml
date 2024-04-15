@@ -20,7 +20,7 @@ jobs:
 #          fetch-depth: 2
       -
         name: Get environment
-        id: set-environment
+        id: get-environment
         run: |
           git_branch=${{ github.ref }}
           
@@ -43,4 +43,5 @@ jobs:
               ;;
           esac
           
+          echo "environment=${environment}"
           echo "environment=${environment}" >> $GITHUB_OUTPUT

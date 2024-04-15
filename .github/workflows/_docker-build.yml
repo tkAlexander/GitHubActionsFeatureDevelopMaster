@@ -45,7 +45,7 @@ jobs:
                   ;;          
               esac
               ;;
-            test)
+            testing)
               tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_number }}")
               tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_test")
               ;;
