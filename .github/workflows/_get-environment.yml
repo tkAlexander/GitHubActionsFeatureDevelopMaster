@@ -1,0 +1,41 @@
+name: Get environment based on current brunch
+
+on:
+  workflow_call:
+    outputs:
+      environment:
+        description: "Current environment"
+        value: ${{ jobs.get-environment.outputs.environment }}
+
+jobs:
+  get-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.get-environment.outputs.environment }}
+    steps:
+      -
+        name: Get environment
+        id: get-environment
+        env:
+          GIT_BRANCH: ${{ github.ref }}
+        run: |
+          case $GIT_BRANCH in
+            refs/heads/master)
+              environment="production"
+              ;;
+            refs/heads/release/**)
+              environment="testing"
+              ;;
+            refs/heads/develop)
+              environment="development"
+              ;;
+            refs/heads/feature/*)
+              environment="development"
+              ;;
+            *)
+              echo "ERROR: Invalid brunch: ${git_branch}!"
+              exit 1
+              ;;
+          esac
+          
+          echo "environment=${environment}" >> $GITHUB_OUTPUT

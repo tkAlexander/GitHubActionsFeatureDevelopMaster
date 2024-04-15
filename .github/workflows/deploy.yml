@@ -1,4 +1,4 @@
-name: Deploy test
+name: Deploy
   
 permissions:
   id-token: write
@@ -7,15 +7,25 @@ permissions:
 on:
   push:
     branches:
+      - 'master'
       - 'release/**'
+      - 'develop'
+      - 'feature/**'
   workflow_dispatch:
 
 jobs:
   list-versions:
     uses: ./.github/workflows/_list-versions.yml
-   
-  deploy-test:
+
+  get-environment:
     needs: list-versions
+    if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}    
+    uses: ./.github/workflows/_get-environment.yml
+   
+  deploy:
+    needs: 
+      - list-versions
+      - get-environment
     if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
     strategy:
       fail-fast: false
@@ -25,6 +35,6 @@ jobs:
     
     uses: ./.github/workflows/_docker-build.yml
     with:
-      environment: test
+      environment: ${{ needs.get-environment.outputs.environment }}
       version: ${{ matrix.version }}
       push: true
