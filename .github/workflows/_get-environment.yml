@@ -33,7 +33,7 @@ jobs:
               environment="development"
               ;;
             *)
-              echo "ERROR: Invalid brunch: ${git_branch}!"
+              echo "ERROR: Invalid brunch: ${GIT_BRANCH}!"
               exit 1
               ;;
           esac

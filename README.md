@@ -1,3 +1,5 @@
+# Contributing and Deployment Guide
+
 This document provides guidelines for contributing to the repository and deploying changes to various environments.
 
 ## Table of Contents
@@ -14,7 +16,7 @@ This document provides guidelines for contributing to the repository and deployi
 
 ### Branching Model
 
-This project follows a Git branching model based on the Gitflow Workflow. The main branches are:
+This project follows a Git branching model based on [the Gitflow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow). The main branches are:
 
 - **master**: Represents the latest stable version of the project. Production-ready changes are merged into this branch.
 - **develop**: Integration branch where feature branches are merged for testing before deployment.
@@ -48,14 +50,14 @@ When opening a pull request:
 
 The docker images are deployed to multiple environments for testing and production use:
 
-- **Development**: Used for testing new features and changes. Deployed automatically from `feature` and `develop` branches.
-- **Test**: Pre-production environment for final testing before release. Deployed from release candidates on the `release` branch.
-- **Production**: Live environment accessible to end-users. Deployed from the `master` branch.
+- **development**: Used for testing new features and changes during development. Deployed automatically from `feature/**` and `develop` branches.
+- **testing**: Pre-production environment for final testing before release. Deployed from release candidates on the `release/**` branch.
+- **production**: Live environment accessible to end-users. Deployed from the `master` branch.
 
 ### Deployment Process
 
 To deploy changes to different environments:
 
-1. **Development**: Changes merged or commited into `feature` and `develop` branches trigger automatic deployment to the development environment.
-2. **Test**: When preparing for release, create a release candidate from the `develop` branch and merge it into the `release` branch. Deployment to test environment is automatically triggered from the `release` branch.
-3. **Production**: Once testing in test is complete and approved, merge the `release` branch into `master` and deploy to the production environment.
+1. **development**: Changes merged or commited into `feature/**` or `develop` branches trigger automatic deployment to the development environment.
+2. **testing**: When preparing for release, create a new `release/**` branch from the `develop` branch. Create new pull request from the `release/**` branch into `master`. Deployment to testing environment is automatically triggered from the `release/**` branch. 
+3. **production**: Once testing in testing environment is complete and approved, merge the `release/**` branch into `master`. Deployment to the production environment is automatically triggered from the `master` branch.
