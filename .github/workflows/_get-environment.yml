@@ -37,6 +37,10 @@ jobs:
             refs/heads/feature/*)
               environment="development"
               ;;
+            *)
+              echo "ERROR: Invalid brunch: ${git_branch}!"
+              exit 1
+              ;;
           esac
           
           echo "environment=${environment}" >> $GITHUB_OUTPUT

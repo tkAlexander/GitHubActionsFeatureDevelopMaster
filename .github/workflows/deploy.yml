@@ -25,7 +25,7 @@ jobs:
   deploy:
     needs: 
       - list-versions
-      - environment
+      - get-environment
     if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
     strategy:
       fail-fast: false
