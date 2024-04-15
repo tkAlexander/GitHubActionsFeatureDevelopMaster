@@ -4,20 +4,15 @@ on:
   workflow_call:
     outputs:
       environment:
-        description: "JSON array of updated versions"
+        description: "Current environment"
         value: ${{ jobs.get-environment.outputs.environment }}
 
 jobs:
   get-environment:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.get-environment.outputs.environment }}
+      environment: ${{ steps.get-environment.outputs.environment }}
     steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 2
       -
         name: Get environment
         id: get-environment
@@ -42,7 +37,5 @@ jobs:
               exit 1
               ;;
           esac
-          
-          echo "environment: ${environment}"
           
           echo "environment=${environment}" >> $GITHUB_OUTPUT
